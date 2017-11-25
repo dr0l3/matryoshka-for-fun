@@ -4,6 +4,7 @@ import matryoshka._
 import matryoshka.data.Fix
 import matryoshka.implicits._
 
+import scala.annotation.tailrec
 import scalaz.Functor
 
 object Maths extends App {
@@ -47,6 +48,20 @@ object Maths extends App {
   val thirty = mul(num(15),mul(num(1),num(2)))
   println(thirty.cata(show))
   println(thirty.cata(eval))
-  println(31.ana[Fix[Expr]](parse).cata(show))
+  println(467.ana[Fix[Expr]](parse).cata(show))
   println(20.ana[Fix[Expr]](parse))
+
+  @tailrec
+  def parseExplicitRecursion(number: Int, acc: String, append: String): String = number match {
+    case n if n == 1 => acc + s"1" + append
+    case n if n == 2 => acc + s"(1 + 1)" + append
+    case n if n % 2 == 0 =>
+      val next = n/2
+      parseExplicitRecursion(next,acc + s"((1 + 1) * ", append + ")")
+    case n =>
+      val next = n -1
+      parseExplicitRecursion(next, acc + s"(1 + ", append + ")")
+  }
+
+  println(parseExplicitRecursion(467,"",""))
 }
